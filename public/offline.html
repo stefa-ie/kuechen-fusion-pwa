@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Offline · Küchen Fusion</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+        color: #121212;
+        text-align: center;
+        padding: 2rem;
+      }
+      img { width: 96px; height: 96px; }
+      h1 { font-family: Georgia, serif; font-weight: 400; font-size: 26px; margin: 1.5rem 0 0.5rem; }
+      p { color: #5a5a5a; font-size: 15px; max-width: 22rem; line-height: 1.45; }
+      button { margin-top: 1.5rem; height: 48px; padding: 0 28px; border-radius: 999px; border: 0; background: #121212; color: #fff; font-size: 15px; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <img src="/icons/icon-192.png" alt="Küchen Fusion" />
+    <h1>Du bist offline</h1>
+    <p>Bereits geöffnete Rezepte und laufende Timer funktionieren weiter. Neue Rezepte und die geteilte Einkaufsliste brauchen eine Verbindung.</p>
+    <p lang="en">You're offline. Recipes you've opened and running timers keep working.</p>
+    <button onclick="location.reload()">Erneut versuchen</button>
+  </body>
+</html>
