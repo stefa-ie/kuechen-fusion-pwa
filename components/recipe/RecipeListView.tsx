@@ -10,7 +10,6 @@ import { searchRecipes } from "@/lib/recipe-utils";
 import type { Recipe } from "@/lib/types";
 import { RecipeGrid } from "./RecipeCard";
 
-/** NYT "All Saved" layout: search, filter chips, count + sort, two-column grid. */
 export function RecipeListView({
   title,
   recipes,

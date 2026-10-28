@@ -195,12 +195,29 @@ export class SupabaseStore implements DataStore {
   }
 
   async listRecipes(householdId: string) {
-    const rows = check(
+    const own = check(
       await this.db
         .from("recipes")
         .select("*")
         .eq("household_id", householdId)
         .order("created_at", { ascending: false }),
+    ) as Row[];
+    const saved = check(
+      await this.db.from("collection_recipes").select("recipe_id").eq("household_id", householdId),
+    ) as { recipe_id: string }[];
+    const ownIds = new Set(own.map((r) => r.id as string));
+    const foreignIds = [...new Set(saved.map((s) => s.recipe_id))].filter((id) => !ownIds.has(id));
+    const foreign = foreignIds.length
+      ? (check(await this.db.from("recipes").select("*").in("id", foreignIds)) as Row[])
+      : [];
+    return [...own, ...foreign]
+      .map(toRecipe)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+
+  async listLatestRecipes(limit: number) {
+    const rows = check(
+      await this.db.from("recipes").select("*").order("created_at", { ascending: false }).limit(limit),
     );
     return (rows ?? []).map(toRecipe);
   }
@@ -210,7 +227,6 @@ export class SupabaseStore implements DataStore {
     return row ? toRecipe(row) : null;
   }
 
-  /** Social media thumbnails arrive as data URLs; store them in Supabase Storage instead of the row. */
   private async persistImage<T extends Partial<RecipeDraft>>(householdId: string, draft: T): Promise<T> {
     if (!draft.imageUrl?.startsWith("data:")) return draft;
     const blob = await (await fetch(draft.imageUrl)).blob();
@@ -233,7 +249,12 @@ export class SupabaseStore implements DataStore {
     return toRecipe(row);
   }
 
-  async updateRecipe(id: string, draft: Partial<RecipeDraft>) {
+  async updateRecipe(id: string, input: Partial<RecipeDraft>) {
+    let draft = input;
+    if (input.imageUrl?.startsWith("data:")) {
+      const row = check(await this.db.from("recipes").select("household_id").eq("id", id).single()) as Row;
+      draft = await this.persistImage(row.household_id as string, input);
+    }
     check(
       await this.db
         .from("recipes")

@@ -41,7 +41,6 @@ function now() {
   return new Date().toISOString();
 }
 
-/** Browser-only store used when Supabase is not configured. Syncs between tabs. */
 export class LocalStore implements DataStore {
   mode = "local" as const;
   private channel: BroadcastChannel | null =
@@ -149,6 +148,10 @@ export class LocalStore implements DataStore {
     return this.read()
       .recipes.filter((r) => r.householdId === householdId)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+
+  async listLatestRecipes(limit: number) {
+    return [...this.read().recipes].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, limit);
   }
 
   async getRecipe(id: string) {

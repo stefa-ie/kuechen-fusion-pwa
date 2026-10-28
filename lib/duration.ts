@@ -112,7 +112,6 @@ export function classifyTimerKind(sentence: string): TimerKind {
   return "cook";
 }
 
-/** Split text into sentences without breaking on decimals or abbreviations like "ca." */
 export function splitSentences(text: string): string[] {
   return text
     .replace(/\s+/g, " ")
@@ -121,7 +120,6 @@ export function splitSentences(text: string): string[] {
     .filter(Boolean);
 }
 
-/** Detect timers in an instruction step. Durations under 1 minute are ignored. */
 export function detectStepTimers(stepText: string): StepTimer[] {
   const timers: StepTimer[] = [];
   for (const sentence of splitSentences(stepText)) {
@@ -135,7 +133,6 @@ export function detectStepTimers(stepText: string): StepTimer[] {
   return timers;
 }
 
-/** The sentence's leading clause ("Heat the oil", "Den Teig abgedeckt gehen lassen") without the duration. */
 function shortLabel(sentence: string, d: FoundDuration): string {
   const withoutDuration = (sentence.slice(0, d.index) + sentence.slice(d.index + d.length))
     .replace(/\s+(for|für|about|ca\.|etwa|another|weitere|noch)(?=\s|,|$)/gi, " ")
@@ -161,7 +158,6 @@ export function formatMinutes(minutes: number | null | undefined, locale = "de")
   return `${m} ${de ? mLabel : "min"}`;
 }
 
-/** Compact label for dials and chips: "25m", "1h 05m". */
 export function formatShort(minutes: number): string {
   const h = Math.floor(minutes / 60);
   const m = Math.round(minutes % 60);

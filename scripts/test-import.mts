@@ -1,7 +1,4 @@
-/**
- * Runs the importer against real URLs without the UI.
- *   pnpm test:import [url ...]
- */
+// Runs the importer against real URLs: pnpm test:import [url ...]
 import { importRecipe } from "../lib/import";
 
 const urls = process.argv.slice(2).length

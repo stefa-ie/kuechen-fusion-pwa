@@ -7,14 +7,13 @@ import { formatClock } from "@/lib/duration";
 import { remainingOf, useTimers } from "@/lib/timers/store";
 import { useNow } from "@/lib/timers/useNow";
 
-/** Floating pills above the tab bar so running timers stay visible on every screen. */
 export function ActiveTimersBar() {
   const pathname = usePathname();
   const timers = useTimers((s) => s.timers);
   const open = useTimers((s) => s.open);
   const now = useNow(500, timers.length > 0);
 
-  if (!timers.length || pathname.startsWith("/timers") || /\/cook$/.test(pathname)) return null;
+  if (!timers.length || pathname.startsWith("/timers")) return null;
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-[calc(66px+env(safe-area-inset-bottom))] z-30">

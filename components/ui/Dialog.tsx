@@ -3,7 +3,6 @@
 import { useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 
-/** iOS-style alert with a single text field, as used by NYT for "Create New Folder". */
 export function PromptDialog({
   open,
   title,

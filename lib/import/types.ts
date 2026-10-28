@@ -17,9 +17,7 @@ export interface RawRecipe {
   instructions: string[];
   keywords: string[];
   language: string | null;
-  /** Unstructured text (social caption or page text) when no recipe markup exists. */
   text: string | null;
-  /** True when ingredients and instructions came from recipe markup. */
   structured: boolean;
 }
 
@@ -28,7 +26,6 @@ export type ImportMethod = "schema+llm" | "llm" | "schema" | "heuristic";
 export interface ImportResult {
   draft: RecipeDraft;
   method: ImportMethod;
-  /** Set when a social post had no recipe and the user should paste the text. */
   needsText: boolean;
   caption: string | null;
   warnings: string[];

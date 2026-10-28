@@ -2,12 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { use, useState } from "react";
-import { RecipeEditor } from "@/components/recipe/RecipeEditor";
-import { Button } from "@/components/ui/Button";
+import { use, useEffect, useState } from "react";
+import { EditorSaveBar, RecipeEditor } from "@/components/recipe/RecipeEditor";
 import { Spinner } from "@/components/ui/misc";
 import { TopBar } from "@/components/ui/TopBar";
-import { useRecipe } from "@/lib/data/hooks";
+import { useCanEdit, useRecipe } from "@/lib/data/hooks";
 import { useInvalidate, useStore } from "@/lib/data/provider";
 import { toast } from "@/lib/toast";
 import type { Recipe, RecipeDraft } from "@/lib/types";
@@ -21,41 +20,48 @@ function Editor({ recipe }: { recipe: Recipe }) {
   const [draft, setDraft] = useState<RecipeDraft>(recipe);
   const [saving, setSaving] = useState(false);
 
+  const save = async () => {
+    setSaving(true);
+    try {
+      await store.updateRecipe(recipe.id, draft);
+      invalidate("recipes");
+      toast(t("saved"));
+      router.replace(`/recipe/${recipe.id}`);
+    } catch (e) {
+      toast(e instanceof Error ? e.message : String(e));
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="pb-28">
       <TopBar back title={t("editTitle")} />
       <div className="pt-2">
         <RecipeEditor draft={draft} onChange={setDraft} />
       </div>
-      <div className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-line bg-paper">
-        <div className="mx-auto flex max-w-xl gap-3 px-4 py-3">
-          <Button className="flex-1" onClick={() => router.back()}>
-            {tc("cancel")}
-          </Button>
-          <Button
-            variant="solid"
-            className="flex-[2]"
-            disabled={saving}
-            onClick={async () => {
-              setSaving(true);
-              await store.updateRecipe(recipe.id, draft);
-              invalidate("recipes");
-              toast(t("saved"));
-              router.replace(`/recipe/${recipe.id}`);
-            }}
-          >
-            {tc("save")}
-          </Button>
-        </div>
-      </div>
+      <EditorSaveBar
+        saving={saving}
+        disabled={!draft.title.trim()}
+        label={tc("save")}
+        cancelLabel={tc("cancel")}
+        onCancel={() => router.back()}
+        onSave={save}
+      />
     </div>
   );
 }
 
 export default function EditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const router = useRouter();
   const { data: recipe } = useRecipe(id);
-  if (!recipe) {
+  const canEdit = useCanEdit(recipe);
+
+  useEffect(() => {
+    if (recipe && !canEdit) router.replace(`/recipe/${id}`);
+  }, [recipe, canEdit, id, router]);
+
+  if (!recipe || !canEdit) {
     return (
       <div className="flex justify-center py-32">
         <Spinner />

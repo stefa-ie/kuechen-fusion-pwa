@@ -16,7 +16,6 @@ export function normaliseUrl(value: string): string {
   return `https://${value.trim()}`;
 }
 
-/** Search field that doubles as a recipe-link importer. */
 export function LinkInput({
   value,
   onChange,

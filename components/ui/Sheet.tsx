@@ -17,7 +17,6 @@ export function Sheet({
   children: ReactNode;
   title?: ReactNode;
   className?: string;
-  /** Covers almost the whole screen like the NYT ingredients/preparation sheet. */
   full?: boolean;
 }) {
   useEffect(() => {

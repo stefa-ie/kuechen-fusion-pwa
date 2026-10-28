@@ -10,7 +10,6 @@ import { remainingOf, useTimers } from "@/lib/timers/store";
 import { useNow } from "@/lib/timers/useNow";
 import type { Recipe, StepTimer } from "@/lib/types";
 
-/** Starts a timer for a detected step duration; shows the live countdown once running. */
 export function TimerChip({
   timer,
   recipe,

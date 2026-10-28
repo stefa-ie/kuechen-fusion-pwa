@@ -37,7 +37,6 @@ export function CollectionThumb({ collection, recipes, size = "sm" }: { collecti
   );
 }
 
-/** NYT-style "Saved to your Recipe Box / Add to your folders" sheet. */
 export function SaveSheet({ recipe, open, onClose }: { recipe: Recipe; open: boolean; onClose: () => void }) {
   const t = useTranslations("save");
   const tc = useTranslations("common");

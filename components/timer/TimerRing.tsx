@@ -1,6 +1,5 @@
 import type { ReactNode } from "react";
 
-/** Circular countdown ring: light track, ink arc that shrinks clockwise, knob at the arc end. */
 export function TimerRing({
   progress,
   size = 260,

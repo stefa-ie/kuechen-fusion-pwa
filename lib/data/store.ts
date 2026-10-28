@@ -16,7 +16,6 @@ export interface Session {
   household: Household;
   households: Household[];
   members: Member[];
-  /** "supabase" shares data across devices, "local" keeps it in this browser. */
   mode: "supabase" | "local";
 }
 
@@ -34,6 +33,7 @@ export interface DataStore {
   leaveHousehold(id: string): Promise<void>;
 
   listRecipes(householdId: string): Promise<Recipe[]>;
+  listLatestRecipes(limit: number): Promise<Recipe[]>;
   getRecipe(id: string): Promise<Recipe | null>;
   createRecipe(householdId: string, draft: RecipeDraft): Promise<Recipe>;
   updateRecipe(id: string, draft: Partial<RecipeDraft>): Promise<void>;
@@ -58,6 +58,5 @@ export interface DataStore {
   deleteGrocery(ids: string[]): Promise<void>;
   reorderGrocery(householdId: string, orderedIds: string[]): Promise<void>;
 
-  /** Notifies about changes made elsewhere (other devices or tabs). */
   subscribe(householdId: string, onChange: (topic: ChangeTopic) => void): () => void;
 }

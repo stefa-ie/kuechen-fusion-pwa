@@ -19,7 +19,6 @@ export function cleanTitle(title: string | null, siteName: string | null): strin
   return t || "Rezept";
 }
 
-/** Split free text (caption, pasted text, page text) into ingredient lines and steps. */
 export function splitFreeText(text: string): { ingredients: string[]; steps: string[]; intro: string[] } {
   const lines = text
     .split(/\r?\n/)

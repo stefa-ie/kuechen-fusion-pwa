@@ -2,10 +2,7 @@
 
 import { useRef, type PointerEvent } from "react";
 
-/**
- * Drag the knob around the ring to set minutes. One revolution = 60 minutes;
- * keep turning past 12 o'clock to add hours.
- */
+// One revolution = 60 minutes; keep turning past 12 o'clock to add hours.
 export function RotaryDial({
   minutes,
   onChange,
@@ -45,7 +42,6 @@ export function RotaryDial({
     e.currentTarget.setPointerCapture(e.pointerId);
     const a = pointerAngle(e);
     const hours = Math.floor(minutes / 60);
-    // Jump the knob to where the user touched within the current hour.
     const total = hours * 360 + a;
     drag.current = { lastAngle: a, total };
     onChange(Math.min(max, Math.max(min, Math.round(total / 6))));

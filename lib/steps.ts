@@ -20,10 +20,6 @@ function tidy(b: string): string {
   return t.charAt(0).toUpperCase() + t.slice(1);
 }
 
-/**
- * Condenses a preparation step into short bullet points without an LLM:
- * one bullet per action, filler openers and explanatory clauses removed.
- */
 export function heuristicBullets(text: string): string[] {
   const bullets: string[] = [];
   for (const sentence of splitSentences(text)) {

@@ -6,7 +6,6 @@ import { formatClock } from "@/lib/duration";
 import { remainingOf, useTimers } from "@/lib/timers/store";
 import { useNow } from "@/lib/timers/useNow";
 
-/** Running timers shown inside cooking mode, where the floating bar is hidden. */
 export function ActiveTimersInline({ recipeId }: { recipeId?: string }) {
   const t = useTranslations("timers");
   const timers = useTimers((s) => s.timers);

@@ -23,6 +23,16 @@ export function useRecipes() {
   });
 }
 
+export function useLatestRecipes(limit = 10) {
+  const store = useStore();
+  const hid = useHouseholdId();
+  return useQuery({
+    queryKey: [...queryKeys.latest, limit],
+    queryFn: () => store.listLatestRecipes(limit),
+    enabled: Boolean(hid),
+  });
+}
+
 export function useRecipe(id: string) {
   const store = useStore();
   const queryClient = useQueryClient();
@@ -34,6 +44,11 @@ export function useRecipe(id: string) {
     initialData: () =>
       queryClient.getQueryData<Recipe[]>(queryKeys.recipes(hid ?? ""))?.find((r) => r.id === id),
   });
+}
+
+export function useCanEdit(recipe: Recipe | null | undefined): boolean {
+  const hid = useHouseholdId();
+  return Boolean(recipe && hid && recipe.householdId === hid);
 }
 
 export function useCollections() {
@@ -76,7 +91,6 @@ export function useGrocery() {
   });
 }
 
-/** Grocery mutations with optimistic cache updates so checking items feels instant. */
 export function useGroceryActions() {
   const store = useStore();
   const hid = useHouseholdId() ?? "";
@@ -117,7 +131,6 @@ export function useGroceryActions() {
 
   const add = useMutation({
     mutationFn: async (items: NewGroceryItem[]) => {
-      // Merge with open items of the same name and unit instead of duplicating them.
       const current = queryClient.getQueryData<GroceryItem[]>(key) ?? (await store.listGrocery(hid));
       const fresh: NewGroceryItem[] = [];
       for (const item of items) {

@@ -7,14 +7,12 @@ import type { TimerKind } from "../types";
 export interface KitchenTimer {
   id: string;
   label: string;
-  /** Instruction text shown above the timer, like CREME's step banner. */
   detail: string | null;
   recipeId: string | null;
   recipeTitle: string | null;
   imageUrl: string | null;
   stepIndex: number | null;
   kind: TimerKind | null;
-  /** Duration of the current run, used for ring progress and "repeat". */
   durationMs: number;
   originalMs: number;
   endsAt: number | null;

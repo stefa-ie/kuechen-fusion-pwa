@@ -18,7 +18,6 @@ const UNICODE_FRACTIONS: Record<string, number> = {
 
 const FRACTION_CHARS = Object.keys(UNICODE_FRACTIONS).join("");
 
-/** Canonical unit -> aliases (lowercase, without trailing dot). */
 const UNIT_ALIASES: Record<string, string[]> = {
   g: ["g", "gr", "gram", "grams", "gramm", "gramme"],
   kg: ["kg", "kilo", "kilos", "kilogram", "kilograms", "kilogramm"],
@@ -64,7 +63,6 @@ export function isUnitToken(token: string): boolean {
 
 const METRIC = new Set(["g", "kg", "mg", "ml", "cl", "dl", "l"]);
 
-/** Parses "1", "1.5", "1,5", "1/2", "1 1/2", "1½", "½". Returns null if not a number. */
 export function parseNumber(input: string): number | null {
   const s = input.trim();
   if (!s) return null;
@@ -91,7 +89,6 @@ export interface ParsedQuantity {
 }
 
 export function parseLeadingQuantity(line: string): ParsedQuantity {
-  // "2 x 120g tins sardines" -> qty 2, rest "x 120g tins sardines" is handled by caller
   const m = line.match(QUANTITY_RE);
   if (!m) return { qty: null, qtyMax: null, rest: line.trim() };
   return {

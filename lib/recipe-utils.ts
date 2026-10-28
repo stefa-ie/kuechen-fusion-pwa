@@ -1,4 +1,23 @@
-import type { Collection, Recipe } from "./types";
+import type { Collection, Recipe, RecipeDraft } from "./types";
+
+export function emptyDraft(): RecipeDraft {
+  return {
+    title: "",
+    description: null,
+    imageUrl: null,
+    author: null,
+    sourceUrl: null,
+    linkedUrl: null,
+    sourceType: "manual",
+    servings: null,
+    servingsLabel: null,
+    times: { total: null, prep: null, cook: null, bake: null, rest: null },
+    ingredients: [],
+    steps: [],
+    tags: [],
+    language: null,
+  };
+}
 
 export function hostOf(url: string | null | undefined): string | null {
   if (!url) return null;

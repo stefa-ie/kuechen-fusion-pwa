@@ -92,7 +92,7 @@ export default function RecipeBoxPage() {
           {all.length > 0 && <RecipeCarousel recipes={all.slice(0, 8)} />}
           <div className="px-3 pt-3">
             <Button className="w-full" onClick={() => router.push("/box/all")}>
-              {t("seeAll")}
+              {t("seeAll", { count: all.length })}
             </Button>
           </div>
 

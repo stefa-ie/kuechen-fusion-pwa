@@ -1,9 +1,4 @@
-/**
- * Generates the KF logo proposals (public/branding/*.svg) and the PWA icon set (public/icons, favicon)
- * from the Unifraktur fonts. Glyphs are converted to outlines so the SVGs need no font at runtime.
- *
- *   pnpm icons
- */
+// Generates the logo proposals and PWA icons; glyphs are outlined so the SVGs need no font.
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -21,7 +16,6 @@ const cook = loadFont("UnifrakturCook-Bold.ttf");
 const INK = "#121212";
 const PAPER = "#ffffff";
 
-/** Outline of `text` with its bounding box centred on (cx, cy). */
 function centred(font: opentype.Font, text: string, size: number, cx: number, cy: number): string {
   const box = font.getPath(text, 0, 0, size).getBoundingBox();
   const x = cx - (box.x1 + box.x2) / 2;
@@ -29,7 +23,6 @@ function centred(font: opentype.Font, text: string, size: number, cx: number, cy
   return font.getPath(text, x, y, size).toPathData(2);
 }
 
-/** Outline of `text` set along the top of a circle (reading clockwise), centred at 12 o'clock. */
 function onArc(font: opentype.Font, text: string, size: number, cx: number, cy: number, r: number, tracking = 0): string {
   const widths = [...text].map((ch) => font.getAdvanceWidth(ch, size) + tracking);
   const total = widths.reduce((a, b) => a + b, 0) - tracking;
@@ -121,14 +114,12 @@ const appIcon = (scale: number) =>
 /** Android status-bar badge: only the alpha channel is used. */
 const badge = svg(96, 96, `<path fill="${PAPER}" d="${centred(maguntia, "KF", 64, 48, 50)}"/>`);
 
-/** Favicon / SVG icon: rounded black tile that reads well at 16px. */
 const faviconSvg = svg(
   64,
   64,
   `<rect width="64" height="64" rx="14" fill="${INK}"/><path fill="${PAPER}" d="${centred(maguntia, "KF", 40, 32, 33)}"/>`,
 );
 
-/** Minimal ICO container with PNG payloads (supported by all current browsers). */
 function ico(pngs: { size: number; data: Buffer }[]): Buffer {
   const header = Buffer.alloc(6 + 16 * pngs.length);
   header.writeUInt16LE(0, 0);

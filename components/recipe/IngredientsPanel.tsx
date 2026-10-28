@@ -29,16 +29,16 @@ export function IngredientsPanel({
   recipe,
   servings,
   onServingsChange,
+  onAddToGrocery,
   checked,
   onToggle,
-  onAddToGrocery,
 }: {
   recipe: Recipe;
   servings: number;
   onServingsChange: (n: number) => void;
-  checked: Set<number>;
-  onToggle: (index: number) => void;
-  onAddToGrocery: () => void;
+  onAddToGrocery?: () => void;
+  checked?: Set<number>;
+  onToggle?: (index: number) => void;
 }) {
   const t = useTranslations("recipe");
   const locale = useLocale();
@@ -47,7 +47,7 @@ export function IngredientsPanel({
 
   return (
     <div>
-      <div className="flex items-center justify-between px-4 py-4">
+      <div className="flex min-h-9 items-center justify-between gap-2 pb-2">
         {base ? (
           <div className="flex items-center gap-2">
             <Stepper value={servings} onChange={onServingsChange} label={t("servings", { count: servings })} />
@@ -62,32 +62,37 @@ export function IngredientsPanel({
             )}
           </div>
         ) : (
-          <span className="text-[14px] text-muted">{recipe.servingsLabel ?? ""}</span>
+          <span className="text-[15px] font-semibold">{recipe.servingsLabel ?? ""}</span>
         )}
-        <Button size="sm" variant="outline" onClick={onAddToGrocery}>
-          <ShoppingBasket className="size-4" />
-          {t("toGrocery")}
-        </Button>
+        {onAddToGrocery && (
+          <Button size="sm" variant="outline" onClick={onAddToGrocery}>
+            <ShoppingBasket className="size-4" />
+            {t("toGrocery")}
+          </Button>
+        )}
       </div>
-      <ul className="px-4">
+      <ul>
         {recipe.ingredients.map((ing, i) => {
           const showGroup = ing.group && ing.group !== recipe.ingredients[i - 1]?.group;
-          const done = checked.has(i);
+          const line = <IngredientLine ingredient={scaleIngredient(ing, factor)} locale={locale} />;
+          const done = checked?.has(i) ?? false;
           return (
             <li key={i}>
               {showGroup && <div className="kicker pt-5 pb-1 text-muted">{ing.group}</div>}
-              <button
-                onClick={() => onToggle(i)}
-                className={cn(
-                  "flex w-full items-start gap-3 py-2.5 text-left text-[18px] leading-snug",
-                  done && "text-faint [&_b]:font-normal",
-                )}
-              >
-                <Checkbox checked={done} />
-                <span>
-                  <IngredientLine ingredient={scaleIngredient(ing, factor)} locale={locale} />
-                </span>
-              </button>
+              {onToggle ? (
+                <button
+                  onClick={() => onToggle(i)}
+                  className={cn(
+                    "flex w-full items-start gap-3 py-3 text-left text-[20px] leading-snug",
+                    done && "text-faint [&_b]:font-normal",
+                  )}
+                >
+                  <Checkbox checked={done} />
+                  <span>{line}</span>
+                </button>
+              ) : (
+                <p className="py-3 text-[17px] leading-snug">{line}</p>
+              )}
             </li>
           );
         })}

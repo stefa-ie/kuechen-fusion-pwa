@@ -4,8 +4,9 @@ import { AlertCircle, Check, Link2, Sparkles } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
-import { RecipeEditor } from "@/components/recipe/RecipeEditor";
+import { EditorSaveBar, RecipeEditor } from "@/components/recipe/RecipeEditor";
 import { TimeCard } from "@/components/recipe/TimeCard";
+import { isUrl, normaliseUrl } from "@/components/search/LinkInput";
 import { Button } from "@/components/ui/Button";
 import { Spinner } from "@/components/ui/misc";
 import { TopBar } from "@/components/ui/TopBar";
@@ -38,13 +39,15 @@ function ImportFlow() {
   // Share Target sends url, text and title; Instagram puts the link into "text".
   const sharedText = params.get("text");
   const url = findUrl(params.get("url"), sharedText, params.get("title"));
-  const [pasted, setPasted] = useState(() => (sharedText && !findUrl(sharedText) ? sharedText : ""));
+  const sharedRecipeText = sharedText && !findUrl(sharedText) ? sharedText : "";
+  const [pasted, setPasted] = useState(sharedRecipeText);
   const [result, setResult] = useState<ImportResult | null>(null);
   const [draft, setDraft] = useState<RecipeDraft | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [stage, setStage] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [linkInput, setLinkInput] = useState("");
   const started = useRef(false);
 
   const run = useCallback(
@@ -74,10 +77,10 @@ function ImportFlow() {
   );
 
   useEffect(() => {
-    if (started.current || (!url && !pasted)) return;
+    if (started.current || (!url && !sharedRecipeText)) return;
     started.current = true;
-    void run(pasted || undefined);
-  }, [url, pasted, run]);
+    void run(sharedRecipeText || undefined);
+  }, [url, sharedRecipeText, run]);
 
   const save = async () => {
     if (!draft || !hid) return;
@@ -98,6 +101,32 @@ function ImportFlow() {
   return (
     <div className="pb-28">
       <TopBar back title={t("title")} />
+
+      {!url && (
+        <form
+          className="mx-4 mt-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (isUrl(linkInput)) router.replace(`/import?url=${encodeURIComponent(normaliseUrl(linkInput))}`);
+          }}
+        >
+          <label className="kicker mb-2 block text-[12px] text-muted">{t("linkLabel")}</label>
+          <div className="flex gap-2">
+            <input
+              value={linkInput}
+              onChange={(e) => setLinkInput(e.target.value)}
+              inputMode="url"
+              enterKeyHint="go"
+              autoFocus
+              placeholder="https://"
+              className="min-w-0 flex-1 rounded-lg border border-line px-3 py-2.5 text-[16px] outline-none focus:border-ink"
+            />
+            <Button type="submit" variant="solid" disabled={!isUrl(linkInput)}>
+              {t("load")}
+            </Button>
+          </div>
+        </form>
+      )}
 
       {url && (
         <div className="mx-4 mt-2 flex items-center gap-2 rounded-lg bg-wash px-3 py-2.5 text-[14px]">
@@ -169,16 +198,14 @@ function ImportFlow() {
       )}
 
       {draft && !loading && !result?.needsText && (
-        <div className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-line bg-paper">
-          <div className="mx-auto flex max-w-xl gap-3 px-4 py-3">
-            <Button className="flex-1" onClick={() => router.back()}>
-              {tc("cancel")}
-            </Button>
-            <Button variant="solid" className="flex-[2]" disabled={saving || !draft.title.trim()} onClick={save}>
-              {saving ? <Spinner className="size-4 border-paper/30 border-t-paper" /> : t("save")}
-            </Button>
-          </div>
-        </div>
+        <EditorSaveBar
+          saving={saving}
+          disabled={!draft.title.trim()}
+          label={t("save")}
+          cancelLabel={tc("cancel")}
+          onCancel={() => router.back()}
+          onSave={save}
+        />
       )}
     </div>
   );

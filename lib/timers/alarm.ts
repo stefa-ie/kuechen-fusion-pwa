@@ -25,7 +25,6 @@ function beep(at: number, frequency: number) {
   osc.stop(at + 0.3);
 }
 
-/** A short three-tone kitchen chime. */
 export function playChime() {
   if (!ctx) return;
   const t = ctx.currentTime + 0.02;

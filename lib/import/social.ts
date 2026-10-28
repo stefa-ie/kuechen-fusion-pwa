@@ -88,7 +88,6 @@ export async function fetchSocial(url: string, sourceType: SourceType): Promise<
   return raw;
 }
 
-/** First meaningful caption line without hashtags/emojis, e.g. "Creamy Mushroom Sweet Potato Vermicelli". */
 export function captionTitle(caption: string | null): string | null {
   if (!caption) return null;
   const first = caption
@@ -139,7 +138,6 @@ function score(candidate: string, query: string[]): number {
   return query.filter((w) => target.has(w)).length;
 }
 
-/** Find the recipe on a creator's site: WordPress search API first, then the HTML search page. */
 async function searchSite(origin: string, title: string): Promise<string | null> {
   const query = words(title);
   if (!query.length) return null;
@@ -178,7 +176,6 @@ async function searchSite(origin: string, title: string): Promise<string | null>
   return ranked[0]?.url ?? null;
 }
 
-/** Follow a "link in bio" / website mention to the full recipe. */
 export async function followLinkedRecipe(raw: RawRecipe): Promise<RawRecipe | null> {
   const urls = linkedUrls(raw.text);
   const title = raw.title ?? captionTitle(raw.text) ?? "";

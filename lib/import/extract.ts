@@ -49,7 +49,6 @@ function imageUrl(v: unknown): string | null {
   if (!v) return null;
   if (typeof v === "string") return v;
   if (Array.isArray(v)) {
-    // Prefer the largest when sizes are given, otherwise the first.
     return imageUrl(v[v.length > 1 && typeof v[v.length - 1] === "string" ? v.length - 1 : 0]);
   }
   if (typeof v === "object") return imageUrl((v as Json).url ?? (v as Json).contentUrl ?? (v as Json)["@id"]);
@@ -60,7 +59,6 @@ function flattenInstructions(v: unknown, out: string[] = []): string[] {
   for (const item of asArray(v)) {
     if (typeof item === "string") {
       const cleaned = decode(item).trim();
-      // Single blob with line breaks or numbered steps
       const parts = cleaned.split(/\n+|(?=\b\d+\.\s+[A-ZÄÖÜ])/).map((s) => s.replace(/^\d+[.)]\s*/, "").trim());
       out.push(...parts.filter(Boolean));
     } else if (item && typeof item === "object") {
@@ -146,7 +144,6 @@ const STOP_HEADINGS =
   /^(notes?|recipe notes|nutrition|tips?|comments?|leave a (reply|comment)|related|you may also like|share this|more recipes|rezept-?tipps?|hinweise?|nährwerte|kommentare|das könnte dir auch)\b/i;
 const BLOCK_TAGS = "p,div,li,tr,h1,h2,h3,h4,h5,h6,section,article,ul,ol,table,dt,dd,figcaption,header,footer,blockquote";
 
-/** Page content as one line per block element, in document order. */
 function blockLines($: cheerio.CheerioAPI): string[] {
   const $c = cheerio.load($.html());
   $c("script,style,noscript,svg,nav,form,iframe,button,select").remove();
@@ -168,7 +165,6 @@ const isHeading = (line: string, re: RegExp) => line.length < 40 && re.test(line
 const isCounter = (line: string) => /^(\d{1,2}|step \d+|schritt \d+)\.?$/i.test(line);
 const GROUP_LINE = /^\*?\s*((for|für) (the |den |die |das )?)?[^\d*]{2,30}\s*\*?:?$/i;
 
-/** Finds "Ingredients" / "Method" headings in page text and collects the lines that follow. */
 function fromHeadings($: cheerio.CheerioAPI, raw: RawRecipe) {
   const lines = blockLines($);
   for (let start = 0; start < lines.length; start++) {
@@ -208,7 +204,6 @@ function fromHeadings($: cheerio.CheerioAPI, raw: RawRecipe) {
   }
 }
 
-/** Reads "Serves 4", "Prep 5 min", "Kochzeit: 25 Minuten" style labels from the page text. */
 function scanMetaLines(lines: string[], raw: RawRecipe) {
   const pairs = lines.slice(0, 600).flatMap((l, i) => [l, `${l} ${lines[i + 1] ?? ""}`]);
   const minutesOf = (s: string) => parseFreeDuration(s);

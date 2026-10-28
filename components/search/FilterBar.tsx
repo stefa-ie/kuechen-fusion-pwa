@@ -42,7 +42,6 @@ export function allTags(recipes: Recipe[]): string[] {
   return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([t]) => t);
 }
 
-/** "+ Filter | chip chip chip" row with a full filter sheet, as in NYT Cooking. */
 export function FilterBar({
   recipes,
   filters,

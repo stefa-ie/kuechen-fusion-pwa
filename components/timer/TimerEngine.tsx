@@ -7,7 +7,6 @@ import { useTimers } from "@/lib/timers/store";
 
 const RING_FOR_MS = 60_000;
 
-/** Watches running timers, fires alarms when they end and keeps chiming until acknowledged. */
 export function TimerEngine() {
   const t = useTranslations("timers");
   const tRef = useRef(t);

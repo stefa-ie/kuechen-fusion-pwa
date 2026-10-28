@@ -1,9 +1,4 @@
-/**
- * Lists translation keys used in the code that are missing from messages/{de,en}.json.
- * Static keys only; template keys like t(`kind.${k}`) are expanded with their known values below.
- *
- *   pnpm check:messages
- */
+// Lists translation keys used in the code that are missing from messages/{de,en}.json.
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
@@ -60,7 +55,6 @@ for (const file of [...walk(join(root, "app")), ...walk(join(root, "components")
 const has = (obj: unknown, key: string): boolean => {
   let cur = obj as Record<string, unknown> | undefined;
   const parts = key.split(".");
-  // Keys like "method.schema+llm" contain no further dots, so walk segment by segment.
   for (const part of parts) {
     if (!cur || typeof cur !== "object" || !(part in cur)) return false;
     cur = cur[part] as Record<string, unknown>;

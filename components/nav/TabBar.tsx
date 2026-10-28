@@ -15,7 +15,7 @@ const TABS = [
   { href: "/search", key: "search", icon: Search, match: (p: string) => p.startsWith("/search") },
 ] as const;
 
-const HIDDEN_ON = [/^\/recipe\/[^/]+\/cook/, /^\/branding/];
+const HIDDEN_ON = [/^\/branding/, /^\/import/, /^\/recipe\/new/, /^\/recipe\/[^/]+\/edit/];
 
 export function TabBar() {
   const pathname = usePathname();

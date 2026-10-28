@@ -1,6 +1,5 @@
 import { cn } from "@/lib/cn";
 
-/** Header wordmark: Fraktur "KF" monogram followed by the app name, like the NYT "T | Cooking" lockup. */
 export function Wordmark({ className }: { className?: string }) {
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>

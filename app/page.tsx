@@ -1,14 +1,16 @@
 "use client";
 
-import { Link2, Settings, Users } from "lucide-react";
+import { Settings, Users } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useState } from "react";
 import { Wordmark } from "@/components/brand/Logo";
+import { AddRecipeButton } from "@/components/nav/AddRecipeButton";
 import { RecipeCarousel, RecipeGrid } from "@/components/recipe/RecipeCard";
 import { CollectionThumb } from "@/components/recipe/SaveSheet";
 import { SerifHeading, Spinner } from "@/components/ui/misc";
-import { useCollections, useCooked, useRecipes, useSession } from "@/lib/data/hooks";
+import { useCollections, useCooked, useLatestRecipes, useRecipes, useSession } from "@/lib/data/hooks";
+import type { Recipe } from "@/lib/types";
 
 const EXAMPLES = [
   { label: "Ottolenghi", url: "https://ottolenghi.co.uk/pages/recipes/polenta-sardines-coriander-salsa" },
@@ -17,20 +19,25 @@ const EXAMPLES = [
 
 export default function BrowsePage() {
   const t = useTranslations("browse");
-  const router = useRouter();
   const { data: session, error } = useSession();
-  const { data: recipes, isLoading } = useRecipes();
+  const { data: recipes = [], isLoading } = useRecipes();
+  const { data: latest = [], isLoading: latestLoading } = useLatestRecipes();
   const { data: collections = [] } = useCollections();
   const { data: cooked = [] } = useCooked();
+  const [seed] = useState(Math.random);
 
-  const recentlyCooked = [...cooked]
-    .sort((a, b) => b.cookedAt.localeCompare(a.cookedAt))
-    .map((c) => recipes?.find((r) => r.id === c.recipeId))
-    .filter((r, i, arr): r is NonNullable<typeof r> => Boolean(r) && arr.indexOf(r) === i);
-  const filledCollections = collections.filter((c) => c.recipeIds.length > 0);
+  const byId = new Map(recipes.map((r) => [r.id, r]));
+  const recentlyCooked = [...new Set([...cooked].sort((a, b) => b.cookedAt.localeCompare(a.cookedAt)).map((c) => c.recipeId))]
+    .map((id) => byId.get(id))
+    .filter((r): r is Recipe => Boolean(r));
+  const filled = collections.filter((c) => c.recipeIds.some((id) => byId.has(id)));
+  const featured = filled.length ? filled[Math.floor(seed * filled.length)] : null;
+  const featuredRecipes = featured
+    ? featured.recipeIds.map((id) => byId.get(id)).filter((r): r is Recipe => Boolean(r)).slice(0, 4)
+    : [];
 
   return (
-    <div>
+    <div className="pb-20">
       <header className="safe-top sticky top-0 z-30 bg-paper/95 backdrop-blur">
         <div className="flex h-14 items-center justify-between px-2">
           <Link href="/household" aria-label={t("household")} className="flex size-10 items-center justify-center rounded-full hover:bg-wash">
@@ -55,22 +62,11 @@ export default function BrowsePage() {
         </div>
       )}
 
-      <button
-        onClick={() => router.push("/search?focus=1")}
-        className="mx-3 mt-2 flex w-[calc(100%-1.5rem)] items-center gap-3 rounded-xl border border-line px-4 py-3.5 text-left"
-      >
-        <Link2 className="size-5 shrink-0" />
-        <span className="min-w-0 flex-1">
-          <span className="block text-[15px] font-semibold">{t("importTitle")}</span>
-          <span className="block text-[13px] text-muted">{t("importHint")}</span>
-        </span>
-      </button>
-
-      {isLoading || !session ? (
+      {isLoading || latestLoading || !session ? (
         <div className="flex justify-center py-24">
           <Spinner />
         </div>
-      ) : !recipes?.length ? (
+      ) : !latest.length ? (
         <section className="px-6 pt-14 text-center">
           <div className="font-fraktur text-[64px] leading-none">KF</div>
           <h2 className="mt-4 font-serif text-[26px] leading-tight">{t("welcomeTitle")}</h2>
@@ -89,25 +85,26 @@ export default function BrowsePage() {
         </section>
       ) : (
         <>
-          <SerifHeading>{t("recentlyAdded")}</SerifHeading>
-          <RecipeCarousel recipes={recipes.slice(0, 10)} />
+          <SerifHeading className="pt-3">{t("newlyAdded")}</SerifHeading>
+          <RecipeCarousel recipes={latest} />
 
-          {filledCollections.length > 0 && (
+          {featured && (
             <>
-              <SerifHeading>{t("collections")}</SerifHeading>
-              <div className="space-y-3 px-3">
-                {filledCollections.slice(0, 3).map((c) => (
-                  <Link key={c.id} href={`/box/${c.id}`} className="relative block overflow-hidden">
-                    <div className="aspect-[16/10] w-full [&>*]:size-full">
-                      <CollectionThumb collection={c} recipes={recipes} size="lg" />
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/10 to-transparent" />
-                    <div className="absolute top-4 left-4 right-4 text-paper">
-                      <div className="text-[12px] font-bold tracking-[0.1em] uppercase">{t("recipeCount", { count: c.recipeIds.length })}</div>
-                      <div className="mt-1 font-sans text-[24px] leading-tight font-bold">{c.name}</div>
-                    </div>
-                  </Link>
-                ))}
+              <SerifHeading>{t("featuredCollections")}</SerifHeading>
+              <Link href={`/box/${featured.id}`} className="relative mx-3 block overflow-hidden">
+                <div className="aspect-square w-full [&>*]:size-full">
+                  <CollectionThumb collection={featured} recipes={recipes} size="lg" />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/10 to-transparent" />
+                <div className="absolute top-4 right-4 left-4 text-paper">
+                  <div className="text-[12px] font-bold tracking-[0.1em] uppercase">
+                    {t("recipeCount", { count: featured.recipeIds.length })}
+                  </div>
+                  <div className="mt-1 text-[24px] leading-tight font-bold">{featured.name}</div>
+                </div>
+              </Link>
+              <div className="mt-4">
+                <RecipeGrid recipes={featuredRecipes} />
               </div>
             </>
           )}
@@ -118,16 +115,10 @@ export default function BrowsePage() {
               <RecipeCarousel recipes={recentlyCooked.slice(0, 10)} />
             </>
           )}
-
-          {recipes.length > 10 && (
-            <>
-              <SerifHeading>{t("allRecipes")}</SerifHeading>
-              <RecipeGrid recipes={recipes.slice(10, 30)} />
-            </>
-          )}
-          <div className="h-6" />
         </>
       )}
+
+      <AddRecipeButton />
     </div>
   );
 }

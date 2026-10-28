@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useState, type ReactNode } from "react";
 import { ConfirmDialog } from "@/components/ui/Dialog";
 import { Sheet } from "@/components/ui/Sheet";
-import { useGroceryActions } from "@/lib/data/hooks";
+import { useCanEdit, useGroceryActions } from "@/lib/data/hooks";
 import { useInvalidate, useStore } from "@/lib/data/provider";
 import { toast } from "@/lib/toast";
 import type { Recipe } from "@/lib/types";
@@ -68,6 +68,7 @@ export function RecipeMenu({
   const store = useStore();
   const invalidate = useInvalidate();
   const addToGrocery = useAddToGrocery();
+  const canEdit = useCanEdit(recipe);
   const [confirm, setConfirm] = useState(false);
   const source = recipe.linkedUrl ?? recipe.sourceUrl;
 
@@ -95,12 +96,16 @@ export function RecipeMenu({
               {t("openSource")}
             </Item>
           )}
-          <Item icon={<Pencil className="size-5" />} onClick={() => router.push(`/recipe/${recipe.id}/edit`)}>
-            {t("edit")}
-          </Item>
-          <Item icon={<Trash2 className="size-5" />} onClick={() => setConfirm(true)} danger>
-            {t("delete")}
-          </Item>
+          {canEdit && (
+            <>
+              <Item icon={<Pencil className="size-5" />} onClick={() => router.push(`/recipe/${recipe.id}/edit`)}>
+                {t("edit")}
+              </Item>
+              <Item icon={<Trash2 className="size-5" />} onClick={() => setConfirm(true)} danger>
+                {t("delete")}
+              </Item>
+            </>
+          )}
         </div>
       </Sheet>
       <ConfirmDialog

@@ -12,6 +12,7 @@ const StoreContext = createContext<DataStore | null>(null);
 export const queryKeys = {
   session: ["session"] as const,
   recipes: (hid: string) => ["recipes", hid] as const,
+  latest: ["latest"] as const,
   recipe: (id: string) => ["recipe", id] as const,
   collections: (hid: string) => ["collections", hid] as const,
   cooked: (hid: string) => ["cooked", hid] as const,
@@ -20,7 +21,7 @@ export const queryKeys = {
 };
 
 const TOPIC_KEYS: Record<ChangeTopic, string[]> = {
-  recipes: ["recipes", "recipe"],
+  recipes: ["recipes", "recipe", "latest"],
   collections: ["collections"],
   cooked: ["cooked"],
   grocery: ["grocery"],

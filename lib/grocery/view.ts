@@ -8,7 +8,6 @@ export type GroceryStatus = "open" | "done" | "all";
 export interface GroceryFilter {
   status: GroceryStatus;
   recipeId: string | null;
-  /** profile id of the person who added the item */
   addedBy: string | null;
 }
 
@@ -21,7 +20,6 @@ export interface GroceryGroup {
   items: GroceryItem[];
 }
 
-/** Turns "2 kg Kartoffeln, Milch" or several pasted lines into grocery items. */
 export function parseQuickAdd(input: string): NewGroceryItem[] {
   return input
     .split(/\n|,(?![^(]*\))|;/)

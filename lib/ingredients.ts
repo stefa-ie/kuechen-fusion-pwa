@@ -8,11 +8,6 @@ function cleanup(text: string): string {
     .trim();
 }
 
-/**
- * Parses a single ingredient line such as
- * "200g quick cook polenta", "2 x 120g tins sardines in sunflower oil",
- * "1 ½ EL Olivenöl, plus mehr zum Servieren", "fine sea salt and black pepper".
- */
 export function parseIngredientLine(line: string, group: string | null = null): Ingredient {
   const raw = cleanup(line);
   let text = raw;
@@ -35,7 +30,6 @@ export function parseIngredientLine(line: string, group: string | null = null): 
     qty = parsed.qty;
     qtyMax = parsed.qtyMax;
     text = parsed.rest;
-    // unit glued or separated: "200g", "200 g", "3 EL", "1 tbsp."
     const unitMatch = text.match(/^([a-zA-Zäöüß]+)\.?(?=\s|$|,)/);
     if (unitMatch && isUnitToken(unitMatch[1])) {
       unit = normaliseUnitLabel(unitMatch[1]);
@@ -43,7 +37,6 @@ export function parseIngredientLine(line: string, group: string | null = null): 
     }
     text = text.replace(/^(of|von)\s+/i, "");
   } else {
-    // Quantity at the end: "Salz, 1 Prise" / "Mehl 200 g"
     const tail = text.match(/[,\s]+(\d+(?:[.,]\d+)?|\d+\/\d+)\s*([a-zA-Zäöü]+)?\.?$/);
     if (tail && (!tail[2] || isUnitToken(tail[2]))) {
       qty = parseNumber(tail[1]);
