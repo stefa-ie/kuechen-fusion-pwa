@@ -50,7 +50,6 @@ function SearchView() {
         <p className="px-6 py-8 text-center text-[14px] text-muted">{t("urlHint")}</p>
       ) : query.trim() || filtering ? (
         <>
-          {/* Typeahead list like NYT, then the filtered grid */}
           <ul className="border-b border-line px-4 pb-2">
             {matches.slice(0, 3).map((r) => (
               <li key={r.id}>
